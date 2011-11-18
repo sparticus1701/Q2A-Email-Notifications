@@ -55,7 +55,7 @@ class email_notifications_event
 
 			if ($emailsubscriptions) // email those in the database
 			{
-				$body = "A question on ^site_title has been asked by ^q_handle:\n\nThe question is:\n\n^open^q_title^close\n\n^open^q_content^close\n\nIf you would like to view this quesion:\n\n^url\n\nThank you,\n\n^site_title";
+				$body = "A question on ^site_title has been asked by ^q_handle:\n\nThe question is:\n\n^open^q_title^close\n\n^open^q_content^close\n\nIf you would like to view this question:\n\n^url\n\nThank you,\n\n^site_title";
 				$subject = 'New ^site_title question: ^q_title';
 				$subs = array(
 					'^q_handle' => isset($handle) ? $handle : qa_lang('main/anonymous'),
@@ -88,7 +88,7 @@ class email_notifications_event
 		}
 		else if ($event == 'a_post')
 		{
-			$body = "A question on ^site_title has been answered by ^a_handle:\n\n^open^a_content^close\n\nThe question was:\n\n^open^q_title^close\n\nIf you would like to view this quesion:\n\n^url\n\nThank you,\n\n^site_title";
+			$body = "A question on ^site_title has been answered by ^a_handle:\n\n^open^a_content^close\n\nThe question was:\n\n^open^q_title^close\n\nIf you would like to view this question:\n\n^url\n\nThank you,\n\n^site_title";
 			$subject = 'New ^site_title answer to: ^q_title';
 
 			$parentpost=qa_post_get_full($params['parentid']);
