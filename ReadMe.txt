@@ -1,3 +1,5 @@
+*** Please do not post problems with this plugin to our forum.  The forum is only for our retail software.  Post any problems at github.
+
 This allows you to create a page where people can register to receive notifications about new questions and answers.
 It also allows you to specify that Experts, Editors, and Moderators will also receive notifications like Admins do.
 
