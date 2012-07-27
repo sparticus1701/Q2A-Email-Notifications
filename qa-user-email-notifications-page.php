@@ -4,21 +4,20 @@
 	Walter Williams
 
 	File: qa-plugin/user-email-notifications/qa-user-email-notifications-page.php
-	Version: 1.0
-	Date: 2011-10-20
+	Version: 2.0
+	Date: 2012-7-27
 	Description: Page module class for user email notifications plugin
 */
 
 
 require_once QA_INCLUDE_DIR.'qa-app-users.php';
 require_once QA_INCLUDE_DIR.'qa-db-maxima.php';
-require_once QA_INCLUDE_DIR.'qa-util-emailer.php';
 require_once QA_INCLUDE_DIR.'qa-util-string.php';
 require_once QA_INCLUDE_DIR.'qa-db-selects.php';
 require_once QA_INCLUDE_DIR.'qa-app-captcha.php';
 
 
-class email_notifications_page
+class qa_user_email_notifications_page
 {
 	var $captchaerrors;
 
@@ -52,7 +51,7 @@ class email_notifications_page
 		$subresultmsg = '';
 		if (qa_post_text('optin') == '0')
 		{
-			qa_captcha_validate($_POST, $captchaerrors);
+			qa_captcha_validate_post($captchaerrors);
 			if (empty($captchaerrors))
 			{
 				if (qa_post_text('email'))
@@ -61,7 +60,7 @@ class email_notifications_page
 		}
 		else if (qa_post_text('optin') == '1')
 		{
-			qa_captcha_validate($_POST, $captchaerrors);
+			qa_captcha_validate_post($captchaerrors);
 			if (empty($captchaerrors))
 			{
 				if (qa_post_text('email'))
