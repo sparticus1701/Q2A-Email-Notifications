@@ -1,4 +1,4 @@
-#Q2A Email Notifications
+#Q2A Email Notifications Revised
 
 This plugin allows you to create a page where people can register to
 receive notifications about new questions and answers.  It also allows
@@ -14,21 +14,17 @@ code.  If you use the user notifications, it is recommended that you
 use this external mailer code or modify it for your particular
 situation.
 
-*Note*: from version 3.0 only logged in users can subscribe, since we
-use the userid as a key instead of the email. Users moving from
-version 2.0 will have to delete the table `qa_emailusersubscription`
-and ask their users to resubscribe.
+Only logged in users can subscribe, since we use the userid as a key
+instead of the email.
 
-*** Please do not post problems with this plugin to our forum.  The
-    forum is only for our retail software.  Post any problems at
-    github.
+This plugin was inspired and based on https://github.com/sawtoothsoftware/Q2A-Email-Notifications 
 
 ### LICENSE
     Q2A Email Notifications
-    Copyright (C) 2011-13  Walter Williams
-                           Foivos S. Zakkak
+    Copyright (C) 2011-13  Foivos S. Zakkak
+                           Walter Williams
     
-    https://github.com/sawtoothsoftware/Q2A-Email-Notifications
+    https://github.com/zakkak/q2a-email-notifications-revised
     
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
