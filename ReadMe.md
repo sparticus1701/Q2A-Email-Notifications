@@ -19,6 +19,10 @@ instead of the email.
 
 This plugin was inspired and based on https://github.com/sawtoothsoftware/Q2A-Email-Notifications 
 
+A less intrusive (does not create a new table in the database plugin
+with the ability to send notifications only for favorited categories
+can also be found at https://github.com/dunse/qa-category-email-notifications
+
 ### LICENSE
     Q2A Email Notifications
     Copyright (C) 2011-13  Foivos S. Zakkak
