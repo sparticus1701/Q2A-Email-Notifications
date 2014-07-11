@@ -130,7 +130,7 @@ class qa_user_email_notifications_page
 		if ($this->verify_email($email))
 		{
 			qa_db_query_sub("CREATE TABLE IF NOT EXISTS ^useremailsubscription (userid int(10) unsigned NOT NULL, email varchar(80) NOT NULL, registered timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, favoritesonly bit(1) NOT NULL DEFAULT b'1', PRIMARY KEY (userid)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-			qa_db_query_sub('REPLACE INTO ^useremailsubscription SET userid = '.qa_get_logged_in_userid().', favoritesonly = b\''.$favonly.'\', email = ($)', $email);
+			qa_db_query_sub('REPLACE INTO ^useremailsubscription SET userid = '.qa_get_logged_in_userid().', favoritesonly = b\''.(isset($favonly) ? 1 : 0).'\', email = ($)', $email);
 
 			$message = 'Thank you for subscribing';
 			return (true);
@@ -142,7 +142,7 @@ class qa_user_email_notifications_page
 
 	function unsubscribe (&$message)
 	{
-		qa_db_query_sub('DELETE IGNORE FROM ^useremailsubscription WHERE userid = ($)', qa_get_logged_in_user());
+		qa_db_query_sub('DELETE IGNORE FROM ^useremailsubscription WHERE userid = ($)', qa_get_logged_in_userid());
 
 		$message = 'You have been unsubscribed';
 		return (true);
