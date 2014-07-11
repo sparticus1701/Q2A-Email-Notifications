@@ -51,7 +51,8 @@ class qa_user_email_notifications_event
 				     "(fav.entitytype = '".QA_ENTITY_CATEGORY."' AND".
 				       " fav.entityid IN (".implode(',',$categoryids).")) OR".
 				     " (fav.entitytype = '".QA_ENTITY_QUESTION."' AND".
-				       " fav.entityid = ".$params['postid'].")".
+				       " (fav.entityid = ".$params['postid']." OR".
+				        " fav.entityid = ".$params['parentid']."))".
 				   ")) GROUP BY email";
 			$emailsubscriptions = qa_db_read_all_values(qa_db_query_sub($query));
 		}
