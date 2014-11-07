@@ -43,6 +43,10 @@ class qa_user_email_notifications_event
 		if ($this->user_email_notification_table_exists()) {
 			$categories  = qa_db_single_select(qa_db_category_nav_selectspec($params['categoryid'], true));
 			$categoryids = array_keys(qa_category_path($categories, $params['categoryid']));
+			
+			if (count($categoryids)==0) {
+				$categoryids = array(0);
+			}
 
 			$query="SELECT email from ^useremailsubscription as sub LEFT JOIN ^userfavorites as fav".
 				   " ON (sub.userid = fav.userid)".
