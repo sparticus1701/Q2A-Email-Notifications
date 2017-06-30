@@ -235,7 +235,9 @@ class qa_user_email_notifications_event
 	function user_email_notification_table_exists ()
 	{
 		$res = qa_db_query_sub("SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = '". QA_MYSQL_DATABASE ."' AND table_name = '^useremailsubscription'");
-		return mysql_result($res, 0) == 1;
+		mysqli_data_seek($res, 0);
+		$row = mysqli_fetch_array($res);
+		return $row[0] == 1;
 	}
 
 	function user_email_notification_send_email($params)
