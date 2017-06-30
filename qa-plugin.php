@@ -1,14 +1,15 @@
 <?php
 
 /*
-	Plugin Name: Email Notification
-	Plugin URI: 
-	Plugin Description: Module that allows special users to receive emails notifications of new questions
-	Plugin Version: 2.0
-	Plugin Date: 2012-7-27
-	Plugin Author: Walter Williams
-	Plugin Author URI: 
-	Plugin License: 
+	Plugin Name: Email Notification Revised
+	Plugin URI: https://github.com/zakkak/q2a-email-notifications-revised
+	Plugin Update Check URI: https://github.com/zakkak/q2a-email-notifications-revised/raw/master/qa-plugin.php
+	Plugin Description: Module that allows users to receive emails notifications of new questions
+	Plugin Version: 3.0
+	Plugin Date: 2013-11-23
+	Plugin Author: Foivos S. Zakkak, Walter Williams 
+	Plugin Author URI: http://foivos.zakkak.net
+	Plugin License: GPLv3
 	Plugin Minimum Question2Answer Version: 1.5
 */
 

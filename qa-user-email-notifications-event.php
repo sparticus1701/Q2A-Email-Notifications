@@ -1,13 +1,25 @@
 <?php
 
 /*
-	Walter Williams
-
-	File: qa-plugin/user-email-notifications/qa-user-email-notifications-event.php
-	Version: 1.0
-	Date: 2011-10-20
-	Description: Event module class for user email notifications plugin
-*/
+ * Q2A Email Notifications
+ * Copyright (C) 2011-13  Walter Williams
+ *                        Foivos S. Zakkak
+ *
+ * https://github.com/sawtoothsoftware/Q2A-Email-Notifications
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 
 require_once QA_INCLUDE_DIR.'qa-db-selects.php';
@@ -22,11 +34,32 @@ class qa_user_email_notifications_event
 {
 	function process_event ($event, $userid, $handle, $cookieid, $params)
 	{
+		if (!($event == 'a_post' || $event == 'q_post'))
+			return;
+
 		$users=qa_db_select_with_pending(qa_db_users_from_level_selectspec(QA_USER_LEVEL_EXPERT));
 
 		$emailsubscriptions = false;
-		if ($this->user_email_notification_table_exists())
-			$emailsubscriptions = qa_db_read_all_values(qa_db_query_sub("SELECT email from ^useremailsubscription"));
+		if ($this->user_email_notification_table_exists()) {
+			$categories  = qa_db_single_select(qa_db_category_nav_selectspec($params['categoryid'], true));
+			$categoryids = array_keys(qa_category_path($categories, $params['categoryid']));
+			
+			if (count($categoryids)==0) {
+				$categoryids = array(0);
+			}
+
+			$query="SELECT email from ^useremailsubscription as sub LEFT JOIN ^userfavorites as fav".
+				   " ON (sub.userid = fav.userid)".
+				   " WHERE (favoritesonly = b'0') OR".
+				   " (favoritesonly = b'1' AND (".
+				     "(fav.entitytype = '".QA_ENTITY_CATEGORY."' AND".
+				       " fav.entityid IN (".implode(',',$categoryids).")) OR".
+				     " (fav.entitytype = '".QA_ENTITY_QUESTION."' AND".
+				       " (fav.entityid = ".$params['postid']." OR".
+				        " fav.entityid = '".$params['parentid']."'))".
+				   ")) GROUP BY email";
+			$emailsubscriptions = qa_db_read_all_values(qa_db_query_sub($query));
+		}
 
 		if ($event == 'q_post')
 		{
@@ -37,11 +70,14 @@ class qa_user_email_notifications_event
 				if ($role == QA_USER_LEVEL_ADMIN || $role == QA_USER_LEVEL_SUPER)
 					continue;
 
-				if ($role == QA_USER_LEVEL_EXPERT && ((int)qa_opt('expert_emailnotifications_enabled')) == 0)
+				if ($role == QA_USER_LEVEL_EXPERT
+				    && ((int)qa_opt('expert_emailnotifications_enabled')) == 0)
 					continue;
-				if ($role == QA_USER_LEVEL_EDITOR && ((int)qa_opt('editor_emailnotifications_enabled')) == 0)
+				if ($role == QA_USER_LEVEL_EDITOR
+				    && ((int)qa_opt('editor_emailnotifications_enabled')) == 0)
 					continue;
-				if ($role == QA_USER_LEVEL_MODERATOR && ((int)qa_opt('moderator_emailnotifications_enabled')) == 0)
+				if ($role == QA_USER_LEVEL_MODERATOR
+				    && ((int)qa_opt('moderator_emailnotifications_enabled')) == 0)
 					continue;
 
 				qa_send_notification($user['userid'], null, null, $subject, qa_lang('emails/q_posted_body'), array(
@@ -65,37 +101,6 @@ class qa_user_email_notifications_event
 					'^open' => "\n",
 					'^close' => "\n",
 				);
-
-				for ($i = 0; $i < count($emailsubscriptions); $i++)
-				{
-					$bcclist = array();
-					for ($j = 0; $j < 75 && $i < count($emailsubscriptions); $j++, $i++)
-					{
-						$bcclist[] = $emailsubscriptions[$i];
-					}
-
-					$this->user_email_notification_send_email(array(
-						'fromemail' => qa_opt('from_email'),
-						'fromname' => qa_opt('site_title'),
-						'bcclist' => $bcclist,
-						'subject' => strtr($subject, $subs),
-						'body' => strtr($body, $subs),
-						'html' => false,
-					));
-				}
-
-//				foreach ($emailsubscriptions as $email)
-//				{
-//					qa_send_email(array(
-//						'fromemail' => qa_opt('from_email'),
-//						'fromname' => qa_opt('site_title'),
-//						'toemail' => $email,
-//						'toname' => $email,
-//						'subject' => strtr($subject, $subs),
-//						'body' => strtr($body, $subs),
-//						'html' => false,
-//					));
-//				}
 			}
 		}
 		else if ($event == 'a_post')
@@ -108,14 +113,18 @@ class qa_user_email_notifications_event
 			foreach ($users as $user) {
 				$role = $user['level'];
 
-				if (($role == QA_USER_LEVEL_ADMIN || $role == QA_USER_LEVEL_SUPER) && ((int)qa_opt('admin_emailnotifications_enabled')) == 0)
+				if (($role == QA_USER_LEVEL_ADMIN || $role == QA_USER_LEVEL_SUPER)
+				    && ((int)qa_opt('admin_emailnotifications_enabled')) == 0)
 					continue;
 
-				if ($role == QA_USER_LEVEL_EXPERT && ((int)qa_opt('expert_emailnotifications_enabled')) == 0)
+				if ($role == QA_USER_LEVEL_EXPERT
+				    && ((int)qa_opt('expert_emailnotifications_enabled')) == 0)
 					continue;
-				if ($role == QA_USER_LEVEL_EDITOR && ((int)qa_opt('editor_emailnotifications_enabled')) == 0)
+				if ($role == QA_USER_LEVEL_EDITOR
+				    && ((int)qa_opt('editor_emailnotifications_enabled')) == 0)
 					continue;
-				if ($role == QA_USER_LEVEL_MODERATOR && ((int)qa_opt('moderator_emailnotifications_enabled')) == 0)
+				if ($role == QA_USER_LEVEL_MODERATOR
+				    && ((int)qa_opt('moderator_emailnotifications_enabled')) == 0)
 					continue;
 
 				qa_send_notification($user['userid'], null, null, $subject, $body, array(
@@ -137,39 +146,39 @@ class qa_user_email_notifications_event
 					'^open' => "\n",
 					'^close' => "\n",
 				);
-
-				for ($i = 0; $i < count($emailsubscriptions); $i++)
-				{
-					$bcclist = array();
-					for ($j = 0; $j < 75 && $i < count($emailsubscriptions); $j++, $i++)
-					{
-						$bcclist[] = $emailsubscriptions[$i];
-					}
-
-					$this->user_email_notification_send_email(array(
-						'fromemail' => qa_opt('from_email'),
-						'fromname' => qa_opt('site_title'),
-						'bcclist' => $bcclist,
-						'subject' => strtr($subject, $subs),
-						'body' => strtr($body, $subs),
-						'html' => false,
-					));
-				}
-
-//				foreach ($emailsubscriptions as $email)
-//				{
-//					qa_send_email(array(
-//						'fromemail' => qa_opt('from_email'),
-//						'fromname' => qa_opt('site_title'),
-//						'toemail' => $email,
-//						'toname' => $email,
-//						'subject' => strtr($subject, $subs),
-//						'body' => strtr($body, $subs),
-//						'html' => false,
-//					));
-//				}
 			}
 		}
+
+		for ($i = 0; $i < count($emailsubscriptions); $i++)
+		{
+			$bcclist = array();
+			for ($j = 0; $j < 75 && $i < count($emailsubscriptions); $j++, $i++)
+			{
+				$bcclist[] = $emailsubscriptions[$i];
+			}
+
+			$this->user_email_notification_send_email(array(
+				'fromemail' => qa_opt('from_email'),
+				'fromname' => qa_opt('site_title'),
+				'bcclist' => $bcclist,
+				'subject' => strtr($subject, $subs),
+				'body' => strtr($body, $subs),
+				'html' => false,
+			));
+		}
+
+//		foreach ($emailsubscriptions as $email)
+//		{
+//			qa_send_email(array(
+//				'fromemail' => qa_opt('from_email'),
+//				'fromname' => qa_opt('site_title'),
+//				'toemail' => $email,
+//				'toname' => $email,
+//				'subject' => strtr($subject, $subs),
+//				'body' => strtr($body, $subs),
+//				'html' => false,
+//			));
+//		}
 	}
 
 	function admin_form(&$qa_content)
@@ -226,7 +235,9 @@ class qa_user_email_notifications_event
 	function user_email_notification_table_exists ()
 	{
 		$res = qa_db_query_sub("SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = '". QA_MYSQL_DATABASE ."' AND table_name = '^useremailsubscription'");
-		return mysql_result($res, 0) == 1;
+		mysqli_data_seek($res, 0);
+		$row = mysqli_fetch_array($res);
+		return $row[0] == 1;
 	}
 
 	function user_email_notification_send_email($params)
@@ -236,12 +247,12 @@ class qa_user_email_notifications_event
 */
 	{
 		if (qa_to_override(__FUNCTION__)) { $args=func_get_args(); return qa_call_override(__FUNCTION__, $args); }
-		
+
 		require_once QA_INCLUDE_DIR.'qa-class.phpmailer.php';
-		
+
 		$mailer=new PHPMailer();
 		$mailer->CharSet='utf-8';
-		
+
 		$mailer->From=$params['fromemail'];
 		$mailer->Sender=$params['fromemail'];
 		$mailer->FromName=$params['fromname'];
@@ -259,22 +270,22 @@ class qa_user_email_notifications_event
 
 		if ($params['html'])
 			$mailer->IsHTML(true);
-			
+
 		if (qa_opt('smtp_active')) {
 			$mailer->IsSMTP();
 			$mailer->Host=qa_opt('smtp_address');
 			$mailer->Port=qa_opt('smtp_port');
-			
+
 			if (qa_opt('smtp_secure'))
 				$mailer->SMTPSecure=qa_opt('smtp_secure');
-				
+
 			if (qa_opt('smtp_authenticate')) {
 				$mailer->SMTPAuth=true;
 				$mailer->Username=qa_opt('smtp_username');
 				$mailer->Password=qa_opt('smtp_password');
 			}
 		}
-			
+
 		return $mailer->Send();
 	}
 };
